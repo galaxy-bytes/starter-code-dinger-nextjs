@@ -35,9 +35,7 @@ export default function Home() {
 
   useEffect(() => {
     const initWeb5 = async () => {
-      const { web5, did } = await Web5.connect();
-      setWeb5(web5);
-      setMyDid(did);
+      console.log(`this log is in initWeb5`);
 
       if (web5 && did) {
         await configureProtocol(web5);
@@ -50,50 +48,14 @@ export default function Home() {
   useEffect(() => {
     if (!web5 || !myDid) return;
     const intervalId = setInterval(async () => {
-      await fetchDings(web5, myDid);
+      console.log(`this log is in intervalId`);
     }, 2000);
 
     return () => clearInterval(intervalId);
   }, [web5, myDid]);
 
   const configureProtocol = async (web5) => {
-    const dingerProtocolDefinition = {
-      protocol: "https://blackgirlbytes.dev/dinger-chat-protocol",
-      published: true,
-      types: {
-        ding: {
-          schema: "https://blackgirlbytes.dev/ding",
-          dataFormats: ["application/json"],
-        },
-      },
-      structure: {
-        ding: {
-          $actions: [
-            { who: "anyone", can: "write" },
-            { who: "author", of: "ding", can: "read" },
-            { who: "recipient", of: "ding", can: "read" },
-          ],
-        },
-      },
-    };
-
-    const { protocols, status: protocolStatus } =
-      await web5.dwn.protocols.query({
-        message: {
-          filter: {
-            protocol: "https://blackgirlbytes.dev/dinger-chat-protocol",
-          },
-        },
-      });
-
-    if (protocolStatus.code !== 200 || protocols.length === 0) {
-      const { protocolStatus } = await web5.dwn.protocols.configure({
-        message: {
-          definition: dingerProtocolDefinition,
-        },
-      });
-      console.log("Configure protocol status", protocolStatus);
-    }
+    console.log(`this log is in configureProtocol`);
   };
 
   const constructDing = () => {
@@ -109,20 +71,11 @@ export default function Home() {
   };
 
   const writeToDwn = async (ding) => {
-    const { record } = await web5.dwn.records.write({
-      data: ding,
-      message: {
-        protocol: "https://blackgirlbytes.dev/dinger-chat-protocol",
-        protocolPath: "ding",
-        schema: "https://blackgirlbytes.dev/ding",
-        recipient: recipientDid,
-      },
-    });
-    return record;
+    console.log(`this log is in writeToDwn`);
   };
 
   const sendRecord = async (record) => {
-    return await record.send(recipientDid);
+    console.log(`this log is in sendRecord`);
   };
 
   const handleSubmit = async (e) => {
@@ -158,30 +111,7 @@ export default function Home() {
   };
 
   const fetchDings = async (web5, did) => {
-    const { records, status: recordStatus } = await web5.dwn.records.query({
-      message: {
-        filter: {
-          protocol: "https://blackgirlbytes.dev/dinger-chat-protocol",
-          protocolPath: "ding",
-        },
-        dateSort: "createdAscending",
-      },
-    });
-
-    try {
-      const results = await Promise.all(
-        records.map(async (record) => record.data.json())
-      );
-
-      if (recordStatus.code == 200) {
-        const received = results.filter((result) => result?.recipient === did);
-        const sent = results.filter((result) => result?.sender === did);
-        setReceivedDings(received);
-        setSentDings(sent);
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    console.log(`this log is in fetchDings`);
   };
 
   const handleStartNewChat = () => {
